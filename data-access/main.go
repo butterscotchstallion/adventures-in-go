@@ -32,11 +32,40 @@ func main() {
 	}
 
 	fmt.Printf("Album found: %v\n", album)
+
+	albID, err := addAlbum(Album{
+		title:  "The Modern Sound of Betty Carter",
+		artist: "Betty Carter",
+		price:  49.99,
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Printf("ID of added album: %v\n", albID)
 }
 
 func getDBHandle() (*sql.DB, error) {
 	db, err := sql.Open("sqlite", "db.sqlite")
 	return db, err
+}
+
+func addAlbum(alb Album) (int64, error) {
+	db, err := getDBHandle()
+	if err != nil {
+		log.Fatal("Error connecting")
+	}
+
+	result, err := db.Exec("INSERT INTO album(title, artist, price) VALUES(?, ?, ?)", alb.title, alb.artist, alb.price)
+	if err != nil {
+		return 0, fmt.Errorf("addALbum: %v", err)
+	}
+
+	id, err := result.LastInsertId()
+	if err != nil {
+		return 0, fmt.Errorf("addAlbum: %v", err)
+	}
+
+	return id, nil
 }
 
 func albumByID(id int64) (Album, error) {
