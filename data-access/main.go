@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	"log"
 
@@ -79,7 +80,7 @@ func albumByID(id int64) (Album, error) {
 	row := db.QueryRow("SELECT * FROM album WHERE id = ?", id)
 
 	if err := row.Scan(&alb.id, &alb.title, &alb.artist, &alb.price); err != nil {
-		if err == sql.ErrNoRows {
+		if errors.Is(err, sql.ErrNoRows) {
 			return alb, fmt.Errorf("albumsById %d: no such album", id)
 		}
 
