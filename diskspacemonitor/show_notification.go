@@ -1,4 +1,4 @@
-package notifications
+package main
 
 import (
 	"gopkg.in/toast.v1"

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -62,5 +63,8 @@ func setUpRouter() *gin.Engine {
 
 func main() {
 	router := setUpRouter()
-	router.Run("localhost:8080")
+	err := router.Run("localhost:8080")
+	if err != nil {
+		log.Fatal(err)
+	}
 }
