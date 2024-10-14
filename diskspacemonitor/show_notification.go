@@ -10,14 +10,12 @@ func ShowNotification(title string, message string) {
 		AppID:   "Disk Space Monitor",
 		Title:   title,
 		Message: message,
-		//Icon:    "go.png", // This file must exist (remove this line if it doesn't)
-		/*
-			Actions: []toast.Action{
-
-				{"protocol", "I'm a button", ""},
-				{"protocol", "Me too!", ""},
-			},
-		*/
+		// This file must exist (remove this line if it doesn't)
+		Icon: "E:\\projects\\adventures-in-go\\diskspacemonitor\\notification-icon.png",
+		Actions: []toast.Action{
+			{"protocol", "Go to Disk Space Clean Up", "http://example.com"},
+		},
+		Duration: "long",
 	}
 	err := notification.Push()
 	if err != nil {
