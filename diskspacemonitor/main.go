@@ -2,11 +2,12 @@ package main
 
 import (
 	"fmt"
+	"github.com/go-co-op/gocron/v2"
 	"github.com/shirou/gopsutil/v4/disk"
 	"go.uber.org/zap"
 )
 
-func main() {
+func CheckLowSpaceAndNotify() {
 	logger, _ := zap.NewDevelopment()
 	sugar := logger.Sugar()
 
@@ -29,4 +30,10 @@ func main() {
 			ShowNotification("Low disk space", message)
 		}
 	}
+}
+
+func main() {
+	//CheckLowSpaceAndNotify()
+	scheduler, _ := gocron.NewScheduler()
+	ScheduleSpaceCheck(scheduler)
 }
