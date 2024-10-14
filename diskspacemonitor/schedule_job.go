@@ -6,19 +6,21 @@ import (
 	"time"
 )
 
+const jobCheckHour uint = 9
+const jobCheckMinute uint = 0
+
 // ScheduleSpaceCheck /**
 func ScheduleSpaceCheck(scheduler gocron.Scheduler) {
 	logger, _ := zap.NewDevelopment()
 	sugar := logger.Sugar()
 
-	//scheduler, _ := gocron.NewScheduler()
 	defer func() { _ = scheduler.Shutdown() }()
 
 	job, err := scheduler.NewJob(
 		gocron.DailyJob(
 			1,
 			gocron.NewAtTimes(
-				gocron.NewAtTime(1, 6, 0),
+				gocron.NewAtTime(jobCheckHour, jobCheckMinute, 0),
 			),
 		),
 		gocron.NewTask(func() {

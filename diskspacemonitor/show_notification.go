@@ -11,7 +11,7 @@ func ShowNotification(title string, message string) {
 		Title:   title,
 		Message: message,
 		// This file must exist (remove this line if it doesn't)
-		Icon: "E:\\projects\\adventures-in-go\\diskspacemonitor\\notification-icon.png",
+		Icon: "E:\\projects\\adventures-in-go\\diskspacemonitor\\disk-space-monitor-icon.png",
 		Actions: []toast.Action{
 			{"protocol", "Go to Disk Space Clean Up", "http://example.com"},
 		},
