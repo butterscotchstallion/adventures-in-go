@@ -48,18 +48,15 @@ func getIconBytes() ([]byte, error) {
 }
 
 func onReady() {
-	logger, _ := zap.NewDevelopment()
-	sugar := logger.Sugar()
-
 	iconBytes, _ := getIconBytes()
 	systray.SetIcon(iconBytes)
 	systray.SetTitle(appName)
 	systray.SetTooltip("Monitoring disk space...")
 	mQuit := systray.AddMenuItem("Quit", "Quit and stop monitoring")
-	// Sets the icon of a menu item. Only available on Mac and Windows.
-	mQuit.SetIcon(iconBytes)
-
-	sugar.Debug("Systray icon set")
+	go func() {
+		<-mQuit.ClickedCh
+		systray.Quit()
+	}()
 }
 
 func onExit() {
