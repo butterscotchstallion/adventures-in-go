@@ -31,7 +31,7 @@ func ScheduleSpaceCheck(scheduler gocron.Scheduler) {
 	if err != nil {
 		sugar.Errorf("Error running job: %v", err)
 	} else {
-		sugar.Debugf("Job %v created", job.Name())
+		sugar.Debugf("Job %v created", job.ID())
 		scheduler.Start()
 		sugar.Debug("Scheduler started")
 

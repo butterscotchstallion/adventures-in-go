@@ -2,11 +2,12 @@ package main
 
 import (
 	"fmt"
+	"os"
+
 	"github.com/getlantern/systray"
 	"github.com/go-co-op/gocron/v2"
 	"github.com/shirou/gopsutil/v4/disk"
 	"go.uber.org/zap"
-	"os"
 )
 
 const appName string = "Disk Space Monitor"
@@ -68,8 +69,8 @@ func setSystemTrayIcon() {
 }
 
 func main() {
-	setSystemTrayIcon()
-
 	scheduler, _ := gocron.NewScheduler()
 	ScheduleSpaceCheck(scheduler)
+
+	setSystemTrayIcon()
 }
