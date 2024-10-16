@@ -37,19 +37,17 @@ func CheckLowSpaceAndNotify() {
 	}
 }
 
-func getIconBytes() ([]byte, error) {
-	logger, _ := zap.NewDevelopment()
-	sugar := logger.Sugar()
+func getIconBytes(logger *zap.SugaredLogger) ([]byte, error) {
 	iconFilePath := "disk_space_monitor_icon.ico"
 	bytes, err := os.ReadFile(iconFilePath)
 	if err != nil {
-		sugar.Fatalf("Can't load icon file: %v", err)
+		logger.Fatalf("Can't load icon file: %v", err)
 	}
 	return bytes, nil
 }
 
-func onReady() {
-	iconBytes, _ := getIconBytes()
+func onReady(logger *zap.SugaredLogger) {
+	iconBytes, _ := getIconBytes(logger)
 	systray.SetIcon(iconBytes)
 	systray.SetTitle(appName)
 	systray.SetTooltip("Monitoring disk space...")
@@ -64,16 +62,27 @@ func onExit() {
 	os.Exit(0)
 }
 
-func setSystemTrayIcon() {
-	systray.Run(onReady, onExit)
+func setSystemTrayIcon(logger *zap.SugaredLogger) {
+	var onReadyCallback = func() {
+		onReady(logger)
+	}
+	systray.Run(onReadyCallback, onExit)
 }
 
-func scheduleSpaceCheck() {
+func scheduleSpaceCheck(logger *zap.SugaredLogger) {
 	scheduler, _ := gocron.NewScheduler()
-	ScheduleSpaceCheck(scheduler)
+	ScheduleSpaceCheck(scheduler, logger)
 }
 
 func main() {
-	go scheduleSpaceCheck()
-	setSystemTrayIcon()
+	sugar := zap.Must(zap.NewDevelopment()).Sugar()
+	defer func(sugar *zap.SugaredLogger) {
+		err := sugar.Sync()
+		if err != nil {
+			sugar.Fatal(err)
+		}
+	}(sugar)
+
+	go scheduleSpaceCheck(sugar)
+	setSystemTrayIcon(sugar)
 }

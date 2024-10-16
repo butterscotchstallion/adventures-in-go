@@ -1,19 +1,18 @@
 package main
 
 import (
+	"fmt"
+	"time"
+
 	"github.com/go-co-op/gocron/v2"
 	"go.uber.org/zap"
-	"time"
 )
 
 const jobCheckHour uint = 9
 const jobCheckMinute uint = 0
 
 // ScheduleSpaceCheck /**
-func ScheduleSpaceCheck(scheduler gocron.Scheduler) {
-	logger, _ := zap.NewDevelopment()
-	sugar := logger.Sugar()
-
+func ScheduleSpaceCheck(scheduler gocron.Scheduler, logger *zap.SugaredLogger) {
 	defer func() { _ = scheduler.Shutdown() }()
 
 	job, err := scheduler.NewJob(
@@ -29,11 +28,11 @@ func ScheduleSpaceCheck(scheduler gocron.Scheduler) {
 	)
 
 	if err != nil {
-		sugar.Errorf("Error running job: %v", err)
+		logger.Error(fmt.Sprintf("Error running job: %v", err))
 	} else {
-		sugar.Debugf("Job %v created", job.ID())
+		logger.Debugf("Job %v created", job.ID())
 		scheduler.Start()
-		sugar.Debug("Scheduler started")
+		logger.Debug("Scheduler started")
 
 		select {
 		case <-time.After(time.Minute):
@@ -41,7 +40,7 @@ func ScheduleSpaceCheck(scheduler gocron.Scheduler) {
 
 		err = scheduler.Shutdown()
 		if err != nil {
-			sugar.Errorf("Error shutting down scheduler: %v", err)
+			logger.Errorf("Error shutting down scheduler: %v", err)
 		}
 	}
 }
