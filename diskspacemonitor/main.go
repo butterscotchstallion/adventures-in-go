@@ -68,9 +68,12 @@ func setSystemTrayIcon() {
 	systray.Run(onReady, onExit)
 }
 
-func main() {
+func scheduleSpaceCheck() {
 	scheduler, _ := gocron.NewScheduler()
 	ScheduleSpaceCheck(scheduler)
+}
 
+func main() {
+	go scheduleSpaceCheck()
 	setSystemTrayIcon()
 }
