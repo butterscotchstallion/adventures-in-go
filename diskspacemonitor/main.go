@@ -104,7 +104,7 @@ func createLogger() (*zap.SugaredLogger, error) {
 
 	// Set up zap logger configuration:
 	core := zapcore.NewCore(
-		zapcore.NewJSONEncoder(encoderConfig), // Using JSON encoder, but you can choose another
+		zapcore.NewConsoleEncoder(encoderConfig), // Using JSON encoder, but you can choose another
 		writeSyncer,
 		zapcore.DebugLevel,
 	)
