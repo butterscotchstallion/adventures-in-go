@@ -2,8 +2,13 @@ package main
 
 import (
 	"fmt"
+	"image/color"
 	"os"
 
+	"gioui.org/app"
+	"gioui.org/op"
+	"gioui.org/text"
+	"gioui.org/widget/material"
 	"github.com/getlantern/systray"
 	"github.com/go-co-op/gocron/v2"
 	"github.com/shirou/gopsutil/v4/disk"
@@ -12,27 +17,28 @@ import (
 	"gopkg.in/natefinch/lumberjack.v2"
 )
 
+const appVersion string = "0.1.0"
 const appName string = "Disk Space Monitor"
 
-func CheckLowSpaceAndNotify() {
-	logger, _ := zap.NewDevelopment()
-	sugar := logger.Sugar()
+var appNameWithVersion = fmt.Sprintf("%v v%v", appName, appVersion)
+var systrayIconSet = false
 
-	fmt.Println(appName)
-
+func CheckLowSpaceAndNotify(logger *zap.SugaredLogger) {
 	// Get low space devices
 	diskPartitions, _ := disk.Partitions(true)
-	lowSpaceDrives := GetLowDiskSpaceDrives(diskPartitions, 90.0)
+	lowSpaceDrives := GetLowDiskSpaceDrives(logger, diskPartitions, 90.0)
 	messages := make([]string, 0)
 	for _, statInfo := range lowSpaceDrives {
 		message := fmt.Sprintf("%v has low disk space (%v%% usage)\n", statInfo.MountPoint, statInfo.DiskUsagePercent)
-		sugar.Info(message)
+		logger.Debug(message)
 		messages = append(messages, message)
 	}
 
+	logger.Debugf("There are %v drives with low space", len(messages))
+
 	// Show notifications, if any low space drives
 	if len(messages) > 0 {
-		sugar.Debugf("Showing %v notifications", len(messages))
+		logger.Debugf("Showing %v notifications", len(messages))
 		for _, message := range messages {
 			ShowNotification("Low disk space", message)
 		}
@@ -49,6 +55,7 @@ func getIconBytes(logger *zap.SugaredLogger) ([]byte, error) {
 }
 
 func onReady(logger *zap.SugaredLogger) {
+	logger.Debug("Setting up systray properties")
 	iconBytes, _ := getIconBytes(logger)
 	systray.SetIcon(iconBytes)
 	systray.SetTitle(appName)
@@ -65,6 +72,8 @@ func onExit() {
 }
 
 func setSystemTrayIcon(logger *zap.SugaredLogger) {
+	logger.Debug("Setting system tray icon")
+
 	var onReadyCallback = func() {
 		onReady(logger)
 	}
@@ -72,6 +81,7 @@ func setSystemTrayIcon(logger *zap.SugaredLogger) {
 }
 
 func scheduleSpaceCheck(logger *zap.SugaredLogger) {
+	logger.Debug("Scheduling space check")
 	scheduler, _ := gocron.NewScheduler()
 	ScheduleSpaceCheck(scheduler, logger)
 }
@@ -111,9 +121,57 @@ func createLogger() (*zap.SugaredLogger, error) {
 
 	loggerZap := zap.New(core)
 	sugar := loggerZap.Sugar()
-	defer sugar.Sync()
+	defer func(sugar *zap.SugaredLogger) {
+		err := sugar.Sync()
+		if err != nil {
+			return
+		}
+	}(sugar)
 
 	return sugar, nil
+}
+
+func initUI(logger *zap.SugaredLogger) {
+	logger.Debug("Initializing UI")
+	go func() {
+		window := new(app.Window)
+		err := run(window, logger)
+		if err != nil {
+			logger.Fatal(err)
+		}
+	}()
+	app.Main()
+}
+
+func run(window *app.Window, logger *zap.SugaredLogger) error {
+	logger.Debug("Running app UI")
+	theme := material.NewTheme()
+	var ops op.Ops
+	for {
+		switch e := window.Event().(type) {
+		case app.DestroyEvent:
+			return e.Err
+		case app.FrameEvent:
+			// This graphics context is used for managing the rendering state.
+			gtx := app.NewContext(&ops, e)
+
+			// Define a large label with an appropriate text:
+			title := material.H1(theme, "Hello, I'm a Disk Space Monitor")
+
+			// Change the color of the label.
+			maroon := color.NRGBA{R: 127, G: 0, B: 0, A: 255}
+			title.Color = maroon
+
+			// Change the position of the label.
+			title.Alignment = text.Middle
+
+			// Draw the label to the graphics context.
+			title.Layout(gtx)
+
+			// Pass the drawing operations to the GPU.
+			e.Frame(gtx.Ops)
+		}
+	}
 }
 
 func main() {
@@ -122,7 +180,10 @@ func main() {
 		sugar.Fatal(err)
 	}
 
-	CheckLowSpaceAndNotify()
+	sugar.Debugf("\n%v", appNameWithVersion)
+
+	go setSystemTrayIcon(sugar)
 	go scheduleSpaceCheck(sugar)
-	setSystemTrayIcon(sugar)
+	initUI(sugar)
+	CheckLowSpaceAndNotify(sugar)
 }

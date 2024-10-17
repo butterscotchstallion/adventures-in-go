@@ -23,16 +23,15 @@ func ScheduleSpaceCheck(scheduler gocron.Scheduler, logger *zap.SugaredLogger) {
 			),
 		),
 		gocron.NewTask(func() {
-			CheckLowSpaceAndNotify()
+			CheckLowSpaceAndNotify(logger)
 		}),
 	)
 
 	if err != nil {
 		logger.Error(fmt.Sprintf("Error running job: %v", err))
 	} else {
-		logger.Debugf("Job %v created", job.ID())
+		logger.Debugf("Job %v scheduled at %v:%v", job.ID(), jobCheckHour, jobCheckMinute)
 		scheduler.Start()
-		logger.Debug("Scheduler started")
 
 		select {
 		case <-time.After(time.Minute):
