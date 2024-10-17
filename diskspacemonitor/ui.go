@@ -7,6 +7,7 @@ import (
 	"gioui.org/app"
 	"gioui.org/op"
 	"gioui.org/text"
+	"gioui.org/unit"
 	"gioui.org/widget/material"
 	"go.uber.org/zap"
 )
@@ -16,12 +17,13 @@ func InitUI(logger *zap.SugaredLogger) {
 	go func() {
 		window := new(app.Window)
 		window.Option(app.Title(appNameWithVersion))
+		window.Option(app.Size(unit.Dp(400), unit.Dp(600)))
 		err := run(window, logger)
 		if err != nil {
 			logger.Fatal(err)
-			logger.Error("Exiting via window close button")
-			os.Exit(0)
 		}
+
+		os.Exit(0)
 	}()
 	app.Main()
 }
