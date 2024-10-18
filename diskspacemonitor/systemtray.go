@@ -21,8 +21,8 @@ func onReady(logger *zap.SugaredLogger) {
 	iconBytes, _ := getIconBytes(logger)
 	systray.SetIcon(iconBytes)
 	systray.SetTitle(appName)
-	systray.SetTooltip("Monitoring disk space...")
-	mQuit := systray.AddMenuItem("Quit", "Quit and stop monitoring")
+	systray.SetTooltip(appNameWithVersion)
+	mQuit := systray.AddMenuItem("Quit", "Quit")
 	go func() {
 		<-mQuit.ClickedCh
 		systray.Quit()
