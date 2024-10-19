@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"strconv"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
@@ -16,7 +17,14 @@ func InitUI(logger *zap.SugaredLogger) {
 
 	newApp := app.New()
 	window := newApp.NewWindow(appNameWithVersion)
-	window.Resize(fyne.NewSize(600, 400))
+	window.Resize(fyne.NewSize(400, 300))
+
+	// Settings area title
+	settingsHeaderText := widget.NewLabel("Settings")
+	settingsHeaderRow := container.New(
+		layout.NewVBoxLayout(),
+		settingsHeaderText,
+	)
 
 	// Bottom grid
 	saveButton := widget.NewButton("Save Settings", func() {
@@ -33,10 +41,18 @@ func InitUI(logger *zap.SugaredLogger) {
 	)
 
 	// Content
-	hourSelect := widget.NewSelect([]string{"Option 1", "Option 2"}, func(value string) {
+	hours := make([]string, 25)
+	for hour := 0; hour <= 24; hour++ {
+		hours[hour] = strconv.Itoa(hour)
+	}
+	hourSelect := widget.NewSelect(hours, func(value string) {
 		log.Println("Hour select set to", value)
 	})
-	minuteSelect := widget.NewSelect([]string{"Option 1", "Option 2"}, func(value string) {
+	minutes := make([]string, 61)
+	for minute := 0; minute <= 60; minute++ {
+		minutes[minute] = strconv.Itoa(minute)
+	}
+	minuteSelect := widget.NewSelect(minutes, func(value string) {
 		log.Println("Minute select set to", value)
 	})
 	timeScheduleRow := container.New(layout.NewGridLayout(2), hourSelect, minuteSelect)
@@ -55,6 +71,7 @@ func InitUI(logger *zap.SugaredLogger) {
 	// Assemble window components
 	window.SetContent(container.New(
 		layout.NewVBoxLayout(),
+		settingsHeaderRow,
 		content,
 		bottomGrid,
 	))
