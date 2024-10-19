@@ -50,9 +50,8 @@ func main() {
 	sugar.Debug("\n")
 	sugar.Debugf("%v", appNameWithVersion)
 
+	CheckLowSpaceAndNotify(sugar)
 	go SetSystemTrayIcon(sugar)
 	go scheduleSpaceCheck(sugar)
-
 	InitUI(sugar)
-	CheckLowSpaceAndNotify(sugar)
 }
