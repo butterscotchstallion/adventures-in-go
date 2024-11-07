@@ -16,6 +16,15 @@ func SplitInt(n int) []int {
 func IsPalindrome(x int) bool {
 	digits := SplitInt(x)
 	reversed := []int{}
+
+	if x < 0 {
+		return false
+	}
+
+	if len(digits) == 1 {
+		return true
+	}
+
 	for i := len(digits) - 1; i >= 0; i-- {
 		reversed = append(reversed, digits[i])
 	}
