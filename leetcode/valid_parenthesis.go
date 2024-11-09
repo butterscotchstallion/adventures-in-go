@@ -1,5 +1,7 @@
 package leetcode
 
+import "log"
+
 /**
  * An input string is valid if:
  *
@@ -20,6 +22,10 @@ func isValid(s string) bool {
 		return false
 	}
 
+	/*if len(s)%2 != 0 {
+		return false
+	}*/
+
 	for pos, char := range s {
 		if char == '(' {
 			openParenCount++
@@ -32,7 +38,8 @@ func isValid(s string) bool {
 		}
 		if char == '[' {
 			openBracketCount++
-			if pos < len(s)-1 && s[pos+1] != ']' {
+			if pos < len(s)-1 && (s[pos+1] != ']' && s[pos+1] != '{' && s[pos+1] != '(') {
+				log.Println("Expected closing bracket, returning false")
 				return false
 			}
 		}
@@ -44,7 +51,8 @@ func isValid(s string) bool {
 		}
 		if char == '{' {
 			openBraceCount++
-			if pos < len(s)-1 && s[pos+1] != '}' {
+			if pos < len(s)-1 && (s[pos+1] != '}' && s[pos+1] != '[' && s[pos+1] != '(') {
+				log.Println("Expected closing brace, returning false")
 				return false
 			}
 		}
