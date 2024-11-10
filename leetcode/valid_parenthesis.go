@@ -1,7 +1,5 @@
 package leetcode
 
-import "log"
-
 /**
  * An input string is valid if:
  *
@@ -11,57 +9,26 @@ import "log"
  *
  */
 func isValid(s string) bool {
-	openParenCount := 0
-	closeParenCount := 0
-	openBracketCount := 0
-	closeBracketCount := 0
-	openBraceCount := 0
-	closeBraceCount := 0
-
-	if len(s) == 1 {
+	if len(s) == 0 || len(s)%2 == 1 {
 		return false
 	}
 
-	/*if len(s)%2 != 0 {
-		return false
-	}*/
+	pairs := map[rune]rune{
+		'(': ')',
+		'{': '}',
+		'[': ']',
+	}
+	stack := []rune{}
 
-	for pos, char := range s {
-		if char == '(' {
-			openParenCount++
-		}
-		if char == ')' {
-			if openParenCount == closeParenCount {
-				return false
-			}
-			closeParenCount++
-		}
-		if char == '[' {
-			openBracketCount++
-			if pos < len(s)-1 && (s[pos+1] != ']' && s[pos+1] != '{' && s[pos+1] != '(') {
-				log.Println("Expected closing bracket, returning false")
-				return false
-			}
-		}
-		if char == ']' {
-			if openBracketCount == closeBracketCount {
-				return false
-			}
-			closeBracketCount++
-		}
-		if char == '{' {
-			openBraceCount++
-			if pos < len(s)-1 && (s[pos+1] != '}' && s[pos+1] != '[' && s[pos+1] != '(') {
-				log.Println("Expected closing brace, returning false")
-				return false
-			}
-		}
-		if char == '}' {
-			if openBraceCount == closeBraceCount {
-				return false
-			}
-			closeBraceCount++
+	for _, r := range s {
+		if _, ok := pairs[r]; ok {
+			stack = append(stack, r)
+		} else if len(stack) == 0 || pairs[stack[len(stack)-1]] != r {
+			return false
+		} else {
+			stack = stack[:len(stack)-1]
 		}
 	}
-	return openParenCount == closeParenCount && openBraceCount == closeBraceCount
+
+	return len(stack) == 0
 }
